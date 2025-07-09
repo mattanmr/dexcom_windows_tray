@@ -2,4 +2,4 @@ pystray
 Pillow
 pydexcom
 keyring
-win10toas
+win10toast
