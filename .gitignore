@@ -1,0 +1,22 @@
+
+---
+
+## 5. `.gitignore`
+
+```gitignore
+# Build artifacts
+__pycache__/
+build/
+dist/
+*.spec
+
+# IDE/editor files
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Credentials
+dexcom_creds.json
