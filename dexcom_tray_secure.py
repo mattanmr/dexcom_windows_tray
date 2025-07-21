@@ -1,4 +1,4 @@
-﻿import time
+import time
 import threading
 from datetime import datetime
 from pystray import Icon, MenuItem, Menu
@@ -7,6 +7,8 @@ from pydexcom import Dexcom
 import keyring
 import getpass
 from win10toast import ToastNotifier
+import tkinter as tk
+from tkinter import simpledialog, messagebox
 
 APP_NAME = "DexcomTrayApp"
 SERVICE = "DexcomTrayService"
@@ -21,12 +23,22 @@ def get_or_set_creds():
     pwd = keyring.get_password(SERVICE, "password")
     region = keyring.get_password(SERVICE, "region")
     if not user or not pwd:
-        user = input("Dexcom username: ")
-        pwd = getpass.getpass("Dexcom password: ")
-        region = input("Dexcom region (us/ous): ").strip().lower() or "us"
+        # Use Tkinter dialog for credentials
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showinfo("Dexcom Credentials", "Please enter your Dexcom credentials.")
+        user = simpledialog.askstring("Dexcom Username", "Enter your Dexcom username:", parent=root)
+        pwd = simpledialog.askstring("Dexcom Password", "Enter your Dexcom password:", show='*', parent=root)
+        region = simpledialog.askstring("Dexcom Region", "Enter your Dexcom region (us/ous):", parent=root)
+        if not user or not pwd:
+            messagebox.showerror("Dexcom Credentials", "Username and password are required. Exiting.")
+            root.destroy()
+            raise RuntimeError("Dexcom credentials not provided.")
+        region = (region or "us").strip().lower()
         keyring.set_password(SERVICE, "username", user)
         keyring.set_password(SERVICE, "password", pwd)
         keyring.set_password(SERVICE, "region", region)
+        root.destroy()
     return user, pwd, region
 
 def create_icon_image(value="...", trend="→", time_str="--:--"):
@@ -69,7 +81,7 @@ def update_loop(icon, dexcom):
 
 def main():
     username, password, region = get_or_set_creds()
-    dexcom = Dexcom(username, password, region)
+    dexcom = Dexcom(account_id=username, password=password, region=region)
 
     icon = Icon(APP_NAME)
     icon.icon = create_icon_image("...", "→", "--:--")
