@@ -12,6 +12,7 @@ dist/
 
 # IDE/editor files
 .vscode/
+.vs/
 *.swp
 
 # OS
